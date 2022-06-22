@@ -1,0 +1,28 @@
+Question 1. Compare kern/mpentry.S side by side with boot/boot.S. Bearing in mind that kern/mpentry.S is compiled and linked to run above KERNBASE just like everything else in the kernel, 
+what is the purpose of macro MPBOOTPHYS? Why is it necessary in kern/mpentry.S but not in boot/boot.S? In other words, what could go wrong if it were omitted in kern/mpentry.S?
+Hint: recall the differences between the link address and the load address that we have discussed in Lab 1.
+Ans: 
+The MPBOOTPHYS is to change the virtual address to the physical address by taking the offset and assigning it to the MPENTRY_ENTRY_PADDR.
+This process is very important in becase boot/boot.s is loaded by the BTOs and it set the page number to zero, Where as the kern/mpentry.S the the address is loaded to the kernbase which is 0x7000 and then the loaded addrers is modified to zero paging address.
+
+Question 2. It seems that using the big kernel lock guarantees that only one CPU can run the kernel code at a time. 
+Why do we still need separate kernel stacks for each CPU? Describe a scenario in which using a shared kernel stack will go wrong, 
+even with the protection of the big kernel lock.
+Ans:
+Eventhough we have muti CPU we only allow we have seperate kernal lock to handle each and every CPU, Just assume we have use same Kernal stack then wehn push and pop operations occures at the same time or even sometime if the interrupt occures then it will messup the code and counters due to the change in top and bottom location.
+
+Question 3. In your implementation of env_run() you should have called lcr3(). 
+Before and after the call to lcr3(), your code makes references (at least it should) to the variable e, 
+the argument to env_run. Upon loading the %cr3 register, the addressing context used by the MMU is instantly changed. 
+But a virtual address (namely e) has meaning relative to a given address context–the address context specifies the physical address to which the virtual address maps.
+Why can the pointer e be dereferenced both before and after the addressing switch?
+Ans:
+I currently store the values of e in the curenv and then i will try to update the e valuse by updating the runs. also the kermal part of the virtual memeory address will be identical.
+
+
+Question 4. Whenever the kernel switches from one environment to another, 
+it must ensure the old environment’s registers are saved so they can be restored properly later. 
+Why? Where does this happen?
+Ans:
+Whenever the kernal is switched then we try to store the previous top address because while running the environment sometimes restart the trap pointer, which may cause the lose of the address location
+
